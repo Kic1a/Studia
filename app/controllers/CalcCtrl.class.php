@@ -62,7 +62,6 @@ class CalcCtrl {
 
             try {
                 $database = new \Medoo\Medoo([
-                    // required
                     'database_type' => 'mysql',
                     'database_name' => 'kredyt',
                     'server' => 'localhost',
@@ -89,7 +88,37 @@ class CalcCtrl {
             }
         }
 
-        $this->generateView();
+        if ($this->isAjaxRequest()) {
+            $this->generateAjaxResponse();
+        } else {
+            $this->generateView();
+        }
+    }
+
+    private function isAjaxRequest() {
+        return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest';
+    }
+
+    private function generateAjaxResponse() {
+        if (isset($this->result->result)) {
+            echo "<h3>Twoja miesięczna rata wynosi: {$this->result->result} zł</h3>";
+        }
+
+        if (getMessages()->isError()) {
+            echo "<ol>";
+            foreach (getMessages()->getErrors() as $err) {
+                echo "<li>{$err}</li>";
+            }
+            echo "</ol>";
+        }
+
+        if (getMessages()->isInfo()) {
+            echo "<ol>";
+            foreach (getMessages()->getInfos() as $info) {
+                echo "<li>{$info}</li>";
+            }
+            echo "</ol>";
+        }
     }
 
     public function action_calcShow(){
