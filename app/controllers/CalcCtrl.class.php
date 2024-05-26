@@ -59,6 +59,34 @@ class CalcCtrl {
 
             $this->result->result = ($this->form->x * ($this->form->y / 100 / 12)) / (1 - pow(1 + ($this->form->y / 100 / 12), -$this->form->z * 12));
             $this->result->result = number_format($this->result->result, 2, '.', '');
+
+            try {
+                $database = new \Medoo\Medoo([
+                    // required
+                    'database_type' => 'mysql',
+                    'database_name' => 'kredyt',
+                    'server' => 'localhost',
+                    'username' => 'root',
+                    'password' => '',
+                    'charset' => 'utf8',
+                    'collation' => 'utf8_polish_ci',
+                    'port' => 3306,
+                    'option' => [
+                        \PDO::ATTR_CASE => \PDO::CASE_NATURAL,
+                        \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION
+                    ]
+                ]);
+
+                $database->insert("wynik", [
+                    "kwota" => $this->form->x,
+                    "lat" => 10,
+                    "procent" => $this->form->y,
+                    "rata" => $this->result->result,
+                    "data" => date("Y-m-d H:i:s")
+                ]);
+            } catch (\PDOException $ex) {
+                getMessages()->addError("DB Error: " . $ex->getMessage());
+            }
         }
 
         $this->generateView();
