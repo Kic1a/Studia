@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="pl" lang="pl">
+<head>
+    <title>Kalkulator kredytowy</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $("form").on("submit", function(event){
+                event.preventDefault(); // zapobiega przeładowaniu strony
+
+                $.ajax({
+                    type: "POST",
+                    url: $(this).attr("action"),
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        $("#wynik").html(response);
+                    },
+                    error: function() {
+                        $("#wynik").html("<p>Wystąpił błąd. Spróbuj ponownie.</p>");
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body class="is-preload">
+    <section id="header">
+        <header class="major">
+            <h1>Kalkulator kredytowy</h1>
+            <p>Oblicz swoją miesięczną ratę!</p>
+        </header>
+    </section>
+    <section id="footer">
+        <div class="container">
+            <header class="major">
+                <h2>Oblicz miesięczną ratę</h2>
+            </header>
+            <form action="{$conf->action_root}calcCompute" method="post">
+                <div class="row gtr-uniform">
+                    <div class="col-12 col-12-xsmall"><input type="text" name="x" id="id_x" placeholder="Podaj kwotę kredytu" /></div>
+                    <div class="col-12 col-12-xsmall"><input type="text" name="y" id="id_y" placeholder="Podaj oprocentowanie" /></div>
+                    <div class="col-12 col-12-xsmall"><input type="text" name="z" id="id_z" placeholder="Podaj okres spłaty w latach" /></div>
+                    <div class="col-12">
+                        <ul class="actions special">
+                            <li><input type="submit" value="Oblicz" class="primary" /></li>
+                        </ul>
+                    </div>
+                </div>
+            </form>  
+            <div id="wynik" class="col-12">
+                {if isset($result->result)}
+                    <h3>Twoja miesięczna rata wynosi: {$result->result} zł</h3>
+                {/if}
+                {if $msgs->isError()}
+                    <ol>
+                        {foreach $msgs->getErrors() as $err}
+                            <li>{$err}</li>
+                        {/foreach}
+                    </ol>
+                {/if}
+                {if $msgs->isInfo()}
+                    <ol>
+                        {foreach $msgs->getInfos() as $info}
+                            <li>{$info}</li>
+                        {/foreach}
+                    </ol>
+                {/if}
+            </div>
+        </div>
+    </section>
+</body>
+</html>
